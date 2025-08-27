@@ -2,6 +2,7 @@
 
 #include "Metal/MTLComputePipeline.hpp"
 #include "Metal/MTLTexture.hpp"
+#include "utils/camera.h"
 #include <MetalKit/MetalKit.hpp>
 
 class Renderer {
@@ -22,6 +23,8 @@ private:
 
   MTL::ComputePipelineState *m_tracerPipeline{nullptr};
   MTL::RenderPipelineState *m_texturePipeline{nullptr};
+
+  std::shared_ptr<Camera> m_camera{std::make_shared<Camera>(0.1f, 0.2f)};
 
   size_t m_iteration{};
   MTL::Texture *m_screenTexture{};

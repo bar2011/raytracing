@@ -7,6 +7,7 @@
 #include "Metal/MTLRenderPass.hpp"
 #include "Metal/MTLTypes.hpp"
 #include "app/constants.h"
+#include "utils/camera.h"
 #include <cstddef>
 #include <stdexcept>
 
@@ -34,7 +35,10 @@ void Renderer::draw(MTK::View *view) {
 
   computeEncoder->setComputePipelineState(m_tracerPipeline);
 
+  auto cameraVectors{m_camera->update()};
+
   computeEncoder->setBytes(&m_iteration, sizeof(size_t), 0);
+  computeEncoder->setBytes(&cameraVectors, sizeof(Camera::CameraVectors), 1);
   computeEncoder->setTexture(m_screenTexture, 0);
 
   MTL::Size threadsPerGrid{AppConstants::WindowWidth,
