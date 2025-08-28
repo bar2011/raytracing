@@ -127,7 +127,7 @@ kernel void tracer(
   if (gid.x >= width || gid.y >= height) return;
   
   const float aspect = width / height;
-  const float focalLength = 1.5f;
+  const float focalLength = 4.0f;
 
   const float2 ndc = float2((0.5f + float(gid.x)) / width, (0.5f + float(gid.y)) / height);
   float2 screen = 2.0 * ndc - 1.0;
