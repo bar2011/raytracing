@@ -116,9 +116,11 @@ void AppDelegate::updateTitleWithFPS() {
   // Update title only every 0.1s to avoid flickering
   if (difference >= 0.1) {
     auto fps{m_framesSinceUpdate / difference};
-    m_window->setTitle(NS::String::string(
-        ("Metal app with " + std::to_string(fps) + "FPS").data(),
-        NS::UTF8StringEncoding));
+    m_window->setTitle(
+        NS::String::string((std::string{AppConstants::windowTitle} + " (" +
+                            std::to_string(fps) + "FPS)")
+                               .data(),
+                           NS::UTF8StringEncoding));
     m_lastTime->release();
     m_lastTime = now;
     m_framesSinceUpdate = 0;
