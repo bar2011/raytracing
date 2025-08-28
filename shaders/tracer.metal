@@ -24,7 +24,7 @@ struct Intersection {
   bool frontFace;
   
   // NOTE: the parameter `outward_normal` is assumed to be normalized.
-  void setFaceNormal(thread Ray &ray, float3 outwardNormal) {
+  void setFaceNormal(const thread Ray &ray, float3 outwardNormal) {
     frontFace = dot(ray.direction, outwardNormal) < 0.0;
     normal = frontFace ? outwardNormal : -outwardNormal;
   }
@@ -36,9 +36,10 @@ struct Sphere {
   half3 color;
   
   // ray - the ray that intersection is checked upon
-  // returns a number representing the ray's time to reach the entry intersection point with the circle.
+  // intersection is set if one is found, with the details of the intersection
+  // returns whether the ray intersected the sphere or not
   // NOTE: the field ray.direction is assumed to be normalized.
-  bool intersect(thread Ray &ray, thread Intersection &intersection) const {
+  bool intersect(const thread Ray &ray, thread Intersection &intersection) const {
     const float3 originToCenter = center - ray.origin;
     const float timeIntersectCenter = dot(originToCenter, ray.direction);
     if (timeIntersectCenter < 0) return false;
@@ -86,6 +87,27 @@ struct Sphere {
   }
 };
 
+struct Object {
+  enum class Type {
+    Sphere,
+  };
+  
+  Type type;
+  union {
+    Sphere sphere;
+  };
+  
+  // ray - the ray that intersection is checked upon
+  // intersection is set if one is found, with the details of the intersection
+  // returns whether the ray intersected the sphere or not
+  // NOTE: the field ray.direction is assumed to be normalized.
+  bool intersect(const thread Ray &ray, thread Intersection &intersection) const {
+    switch (type) {
+      case Type::Sphere: return sphere.intersect(ray, intersection);
+    }
+  }
+};
+
 struct Camera {
   float3 right;
   float3 up;
@@ -114,11 +136,49 @@ kernel void tracer(
   const float3 rayDir = normalize(screen.x * camera->right + screen.y * camera->up + camera->forward * focalLength);
   Ray ray = Ray{camera->pos, rayDir};
   
-  Sphere s1 = Sphere{float3(3.0, 1.0, 4.0), 2.0, half3(1.0, 0.2, 0.2)};
-  
-  Intersection intersection;
-  if (s1.intersect(ray, intersection))
-    outTexture.write(half4(half3((intersection.normal + 1.0) / 2.0), 1.0), gid);
+  constexpr Object objects[] = {
+      Object{
+          .type = Object::Type::Sphere,
+          .sphere = Sphere{
+              .center = float3(0.0, 0.0, -5.0),
+              .radius = 1.0,
+              .color = half3(1.0, 0.0, 0.0) // red
+          }
+      },
+      Object{
+          .type = Object::Type::Sphere,
+          .sphere = Sphere{
+              .center = float3(2.0, 0.0, -6.0),
+              .radius = 0.5,
+              .color = half3(0.0, 1.0, 0.0) // green
+          }
+      },
+      Object{
+          .type = Object::Type::Sphere,
+          .sphere = Sphere{
+              .center = float3(-1.5, 1.0, -4.0),
+              .radius = 0.75,
+              .color = half3(0.0, 0.0, 1.0) // blue
+          }
+      },
+      Object{
+          .type = Object::Type::Sphere,
+          .sphere = Sphere{
+              .center = float3(3.0, 1.0, 4.0),
+              .radius = 2.0,
+              .color = half3(1.0, 1.0, 0.0) // yellow
+      }
+    },
+  };
+
+  Intersection closestIntersection = { .time = INFINITY };
+  for (size_t i = 0; i < 3; ++i) {
+    Intersection intersection;
+    if (objects[i].intersect(ray, intersection) && intersection.time < closestIntersection.time)
+      closestIntersection = intersection;
+  }
+  if (closestIntersection.time != INFINITY)
+    outTexture.write(half4(half3((closestIntersection.normal + 1.0) / 2.0), 1.0), gid);
   else
     outTexture.write(half4(ray.skyboxColor(), 1.0), gid);
 
