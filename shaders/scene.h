@@ -13,7 +13,7 @@ struct Scene {
     Intersection closestIntersection = {.didHit = false, .time=INFINITY};
     for (size_t i = 0; i < objectCount; ++i) {
       thread const Object object = objects[i];
-      Intersection intersection = object.intersect(ray);
+      Intersection intersection = object.intersect(ray, 1e-3f);
       if (intersection.didHit && intersection.time < closestIntersection.time)
         closestIntersection = intersection;
     }

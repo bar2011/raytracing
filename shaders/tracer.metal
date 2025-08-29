@@ -8,18 +8,32 @@
 #include <metal_stdlib>
 using namespace metal;
 
-half4 trace(const thread Ray &ray, const thread Scene &scene, thread rngPCG32 &rng) {
-  Intersection intersection = scene.intersect(ray);
-  if (intersection.didHit) {
-    float3 direction = randomUnitVector(rng);
-    if (dot(direction, intersection.normal) < 0.0) direction = -direction;
-    return half4(half3((direction + 1.0) / 2.0), 1.0);
+constant size_t maxBounceCount = 8;
+constant size_t samplesPerPixel = 10;
+
+half3 trace(const thread Ray &initialRay, const thread Scene &scene, thread rngPCG32 &rng) {
+  Ray ray = initialRay;
+  half3 color = 1.0;
+  
+  for (size_t i = 0; i < maxBounceCount; ++i) {
+    Intersection intersection = scene.intersect(ray);
+    if (intersection.didHit) {
+      float3 direction = randomUnitVector(rng);
+      if (dot(direction, intersection.normal) < 0.0) direction = -direction;
+      ray.origin = intersection.point;
+      ray.direction = direction;
+      color *= 0.3;
+      continue;
+    }
+    
+    break;
+    const float scaledY = (ray.direction.y + 1.0f) * 0.5f;
+    constexpr half3 bottomSkybox = 1.0f;
+    constexpr half3 topSkybox = half3(0.5f, 0.7f, 1.0f);
+    return color * ((1 - scaledY) * bottomSkybox + scaledY * topSkybox);
   }
   
-  const float scaledY = (ray.direction.y + 1.0f) * 0.5f;
-  constexpr half4 bottomSkybox = half4(1.0f, 1.0f, 1.0f, 1.0f);
-  constexpr half4 topSkybox = half4(0.5f, 0.7f, 1.0f, 1.0f);
-  return (1 - scaledY) * bottomSkybox + scaledY * topSkybox;
+  return color;
 }
 
 struct Camera {
@@ -61,7 +75,12 @@ kernel void tracer(
     .objectCount=*objectCount
   };
   
-  outTexture.write(trace(ray, scene, rng), gid);
+  half3 color = 0;
+  
+  for (size_t i = 0; i < samplesPerPixel; ++i)
+    color += trace(ray, scene, rng);
+  
+  outTexture.write(half4(color / samplesPerPixel, 1.0), gid);
 
   // outTexture.write(half4(half3(rayDir), 1.0), gid);
 }

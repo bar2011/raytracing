@@ -13,10 +13,10 @@ struct Sphere {
   // ray - the ray that intersection is checked upon
   // returns object with intersection details (didHit=false if didn't intersect)
   // NOTE: the field ray.direction is assumed to be normalized.
-  Intersection intersect(const thread Ray &ray) const {
+  Intersection intersect(const thread Ray &ray, float minTime = 0) const {
     const float3 originToCenter = center - ray.origin;
     const float timeIntersectCenter = dot(originToCenter, ray.direction);
-    if (timeIntersectCenter < 0)
+    if (timeIntersectCenter < minTime)
       return Intersection{.didHit = false};
 
     const float centerToRayLengthSquared =

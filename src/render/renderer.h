@@ -30,16 +30,26 @@ private:
   size_t m_iteration{};
   MTL::Texture *m_screenTexture{};
 
-  std::array<Object, 5> m_objects{
+  std::array<Object, 6> m_objects{
       Object{.type = Object::Type::Sphere,
-             .sphere = Sphere{.center = {0.f, 0.f, 1.f}, .radius = 1.f}},
+             .sphere = Sphere{.center = {0.f, -20.f, 0.f}, .radius = 20.f}},
+      // Small sphere "sitting" on the ground sphere (at origin)
       Object{.type = Object::Type::Sphere,
-             .sphere = Sphere{.center = {0.f, 0.f, -5.f}, .radius = 1.f}},
+             .sphere = Sphere{.center = {0.f, 1.f, 0.f}, .radius = 1.f}},
+
+      // Medium sphere to the left
       Object{.type = Object::Type::Sphere,
-             .sphere = Sphere{.center = {2.f, 0.f, -6.f}, .radius = 0.5f}},
+             .sphere = Sphere{.center = {-2.f, 1.f, -3.f}, .radius = 2.f}},
+
+      // Small sphere to the right
       Object{.type = Object::Type::Sphere,
-             .sphere = Sphere{.center = {-1.5f, 1.f, -4.f}, .radius = 0.75f}},
+             .sphere = Sphere{.center = {2.f, 0.5f, -2.f}, .radius = 0.5f}},
+
+      // Larger sphere in the background
       Object{.type = Object::Type::Sphere,
-             .sphere = Sphere{.center = {3.f, 1.f, 4.f}, .radius = 2.f}},
-  };
+             .sphere = Sphere{.center = {0.f, 3.f, -6.f}, .radius = 2.f}},
+
+      // Tiny sphere floating above
+      Object{.type = Object::Type::Sphere,
+             .sphere = Sphere{.center = {1.5f, 4.f, -1.f}, .radius = 0.25f}}};
 };
