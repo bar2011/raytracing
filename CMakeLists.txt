@@ -24,6 +24,7 @@ function(glob_sources result_dir result_var)
     "${result_dir}/*.cpp"
     "${result_dir}/*.mm"
     "${result_dir}/*.c"
+    "${result_dir}/*.h"
     "${result_dir}/*.m"
     "${result_dir}/*.cc"
     "${result_dir}/*.cxx"
@@ -53,6 +54,10 @@ add_executable(raytracer MACOSX_BUNDLE "src/runtime/main.cpp")
 set_target_properties(
   raytracer PROPERTIES BUILD_WITH_INSTALL_RPATH TRUE
                        INSTALL_RPATH "@executable_path/../Resources")
+
+set_target_properties(
+  raytracer PROPERTIES MACOSX_BUNDLE TRUE MACOSX_BUNDLE_INFO_PLIST
+                                          ${CMAKE_SOURCE_DIR}/Info.plist.in)
 
 # Add shaders to executable
 add_metal_shader_library(default ${METAL_SHADER_SOURCES})
