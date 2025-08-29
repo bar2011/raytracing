@@ -9,6 +9,7 @@
 #include "app/constants.h"
 #include "utils/camera.h"
 #include <cstddef>
+#include <cstdint>
 #include <stdexcept>
 
 Renderer::Renderer(MTL::Device *device) : m_device{device->retain()} {
@@ -37,8 +38,13 @@ void Renderer::draw(MTK::View *view) {
 
   auto cameraVectors{m_camera->update()};
 
+  uint32_t objectCount{static_cast<uint32_t>(m_objects.size())};
+
   computeEncoder->setBytes(&m_iteration, sizeof(size_t), 0);
   computeEncoder->setBytes(&cameraVectors, sizeof(Camera::CameraVectors), 1);
+  computeEncoder->setBytes(m_objects.data(), sizeof(Object) * m_objects.size(),
+                           2);
+  computeEncoder->setBytes(&objectCount, sizeof(uint32_t), 3);
   computeEncoder->setTexture(m_screenTexture, 0);
 
   MTL::Size threadsPerGrid{AppConstants::WindowWidth,

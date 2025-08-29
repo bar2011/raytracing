@@ -9,18 +9,15 @@ using namespace metal;
 struct Sphere {
   float3 center;
   float radius;
-  half3 color;
 
   // ray - the ray that intersection is checked upon
-  // intersection is set if one is found, with the details of the intersection
-  // returns whether the ray intersected the sphere or not
+  // returns object with intersection details (didHit=false if didn't intersect)
   // NOTE: the field ray.direction is assumed to be normalized.
-  bool intersect(const thread Ray &ray,
-                 thread Intersection &intersection) const {
+  Intersection intersect(const thread Ray &ray) const {
     const float3 originToCenter = center - ray.origin;
     const float timeIntersectCenter = dot(originToCenter, ray.direction);
     if (timeIntersectCenter < 0)
-      return false;
+      return Intersection{.didHit = false};
 
     const float centerToRayLengthSquared =
         dot(originToCenter, originToCenter) -
@@ -30,17 +27,19 @@ struct Sphere {
     const float discriminant = radiusSquared - centerToRayLengthSquared;
 
     if (discriminant < 0)
-      return false;
+      return Intersection{.didHit = false};
     if (discriminant == 0) {
-      intersection = Intersection{.time = timeIntersectCenter,
-                                  .point = ray.at(timeIntersectCenter)};
+      Intersection intersection =
+          Intersection{.didHit = true,
+                       .time = timeIntersectCenter,
+                       .point = ray.at(timeIntersectCenter)};
 
       // P is on the sphere, so |P-C|=R, so dividing by R makes it normalized
       float3 normal = (intersection.point - center) / radius;
 
       intersection.setFaceNormal(ray, normal);
 
-      return true;
+      return intersection;
     }
 
     const float intersectTimeVariation = discriminant * rsqrt(discriminant);
@@ -52,13 +51,14 @@ struct Sphere {
 
     const float time = min(t1, t2); // time is the smallest of the two times
 
-    intersection = Intersection{.time = time, .point = ray.at(time)};
+    Intersection intersection =
+        Intersection{.didHit = true, .time = time, .point = ray.at(time)};
 
     // P is on the sphere, so |P-C|=R, so dividing by R makes it normalized
     float3 normal = (intersection.point - center) / radius;
 
     intersection.setFaceNormal(ray, normal);
 
-    return true;
+    return intersection;
   }
 };

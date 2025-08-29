@@ -6,6 +6,7 @@
 using namespace metal;
 
 struct Intersection {
+  bool didHit;
   float time;
   float3 point;
   float3 normal;

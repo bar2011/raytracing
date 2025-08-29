@@ -18,14 +18,14 @@ struct Object {
   };
 
   // ray - the ray that intersection is checked upon
-  // intersection is set if one is found, with the details of the intersection
-  // returns whether the ray intersected the sphere or not
+  // returns object with intersection details (didHit=false if didn't intersect)
   // NOTE: the field ray.direction is assumed to be normalized.
-  bool intersect(const thread Ray &ray,
-                 thread Intersection &intersection) const {
+  Intersection intersect(const thread Ray &ray) const {
     switch (type) {
     case Type::Sphere:
-      return sphere.intersect(ray, intersection);
+      return sphere.intersect(ray);
+    default:
+      return Intersection{.didHit = false};
     }
   }
 };
