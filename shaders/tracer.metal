@@ -27,8 +27,7 @@ kernel void tracer(
   const float aspect = width / height;
   const float focalLength = 4.0f;
 
-  const float2 ndc = float2((0.5f + float(gid.x)) / width, (0.5f + float(gid.y)) / height);
-  float2 screen = 2.0 * ndc - 1.0;
+  float2 screen = (float2(gid) + 0.5) / float2(width, height) * 2.0 - 1.0;
   screen.x *= aspect;
   
   const float3 rayDir = normalize(screen.x * camera->right + screen.y * camera->up + camera->forward * focalLength);
