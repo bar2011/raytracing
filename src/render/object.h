@@ -5,9 +5,16 @@
 
 #include <simd/simd.h>
 
+struct Material {
+  simd::float3 color;
+  float emissionStrength;
+  simd::float3 emissionColor;
+};
+
 struct Sphere {
   simd::float3 center;
   float radius;
+  Material material;
 };
 
 struct Object {

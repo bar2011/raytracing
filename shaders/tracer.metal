@@ -10,10 +10,12 @@ using namespace metal;
 
 constant size_t maxBounceCount = 8;
 constant size_t samplesPerPixel = 10;
+constant float focalLength = 4.f;
 
 half3 trace(const thread Ray &initialRay, const thread Scene &scene, thread rngPCG32 &rng) {
   Ray ray = initialRay;
-  half3 color = 1.0;
+  float3 color = 1.0;
+  float3 emittedLight = 0.0;
   
   for (size_t i = 0; i < maxBounceCount; ++i) {
     Intersection intersection = scene.intersect(ray);
@@ -22,18 +24,26 @@ half3 trace(const thread Ray &initialRay, const thread Scene &scene, thread rngP
       if (dot(direction, intersection.normal) < 0.0) direction = -direction;
       ray.origin = intersection.point;
       ray.direction = direction;
-      color *= 0.3;
+      
+      float3 emission = intersection.material.emissionStrength * intersection.material.emissionColor;
+      emittedLight += emission * color;
+      
+      color *= intersection.material.color;
+      
       continue;
     }
     
     break;
+    
     const float scaledY = (ray.direction.y + 1.0f) * 0.5f;
-    constexpr half3 bottomSkybox = 1.0f;
-    constexpr half3 topSkybox = half3(0.5f, 0.7f, 1.0f);
-    return color * ((1 - scaledY) * bottomSkybox + scaledY * topSkybox);
+    constexpr float3 bottomSkybox = 1.0f;
+    constexpr float3 topSkybox = float3(0.5f, 0.7f, 1.0f);
+    emittedLight = color * ((1 - scaledY) * bottomSkybox + scaledY * topSkybox);
+    
+    break;
   }
   
-  return color;
+  return half3(emittedLight);
 }
 
 struct Camera {
@@ -41,6 +51,18 @@ struct Camera {
   float3 up;
   float3 forward;
   float3 pos;
+  
+  Ray getRay(uint2 gid, float width, float height, float2 jitter = float2(0, 0)) constant const {
+    const float aspect = width / height;
+
+    float2 screen = (float2(gid) + jitter + 0.5) / float2(width, height) * 2.0 - 1.0;
+    screen.x *= aspect;
+    
+    const float3 rayDir = normalize(screen.x * right + screen.y * up + forward * focalLength);
+    Ray ray = Ray{pos, rayDir};
+    
+    return ray;
+  }
 };
 
 kernel void tracer(
@@ -61,15 +83,6 @@ kernel void tracer(
   // Advance the RNG to ensure randomness
   randomIntPCG32(rng);
 
-  const float aspect = width / height;
-  const float focalLength = 4.0f;
-
-  float2 screen = (float2(gid) + 0.5) / float2(width, height) * 2.0 - 1.0;
-  screen.x *= aspect;
-  
-  const float3 rayDir = normalize(screen.x * camera->right + screen.y * camera->up + camera->forward * focalLength);
-  Ray ray = Ray{camera->pos, rayDir};
-  
   Scene scene = Scene{
     .objects=objects,
     .objectCount=*objectCount
@@ -77,8 +90,12 @@ kernel void tracer(
   
   half3 color = 0;
   
-  for (size_t i = 0; i < samplesPerPixel; ++i)
+  for (size_t i = 0; i < samplesPerPixel; ++i) {
+    float2 jitter = float2(randomFloatPCG32(rng), randomFloatPCG32(rng));
+    Ray ray = camera->getRay(gid, width, height, jitter);
+    
     color += trace(ray, scene, rng);
+  }
   
   outTexture.write(half4(color / samplesPerPixel, 1.0), gid);
 

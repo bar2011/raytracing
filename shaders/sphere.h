@@ -2,6 +2,7 @@
 
 #include "intersection.h"
 #include "ray.h"
+#include "material.h"
 
 #include <metal_stdlib>
 using namespace metal;
@@ -9,6 +10,7 @@ using namespace metal;
 struct Sphere {
   float3 center;
   float radius;
+  Material material;
 
   // ray - the ray that intersection is checked upon
   // returns object with intersection details (didHit=false if didn't intersect)
@@ -30,9 +32,11 @@ struct Sphere {
       return Intersection{.didHit = false};
     if (discriminant == 0) {
       Intersection intersection =
-          Intersection{.didHit = true,
-                       .time = timeIntersectCenter,
-                       .point = ray.at(timeIntersectCenter)};
+      Intersection{.didHit = true,
+          .time = timeIntersectCenter,
+          .point = ray.at(timeIntersectCenter),
+          .material = material
+      };
 
       // P is on the sphere, so |P-C|=R, so dividing by R makes it normalized
       float3 normal = (intersection.point - center) / radius;
@@ -52,7 +56,9 @@ struct Sphere {
     const float time = min(t1, t2); // time is the smallest of the two times
 
     Intersection intersection =
-        Intersection{.didHit = true, .time = time, .point = ray.at(time)};
+    Intersection{
+      .didHit = true, .time = time, .point = ray.at(time), .material = material
+    };
 
     // P is on the sphere, so |P-C|=R, so dividing by R makes it normalized
     float3 normal = (intersection.point - center) / radius;
