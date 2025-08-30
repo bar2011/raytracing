@@ -31,12 +31,12 @@ private:
   MTL::Texture *m_screenTexture{};
 
   std::array<Object, 6> m_objects{
-      // Huge ground sphere (dark gray floor)
+      // Huge ground sphere (purple floor)
       Object{.type = Object::Type::Sphere,
              .sphere = Sphere{.center = {0.f, -20.f, 0.f},
                               .radius = 20.f,
                               .material =
-                                  Material{.color = {0.3f, 0.3f, 0.3f},
+                                  Material{.color = {1.f, 0.2f, 1.f},
                                            .emissionStrength = 0.f,
                                            .emissionColor = {0.f, 0.f, 0.f}}}},
 
@@ -66,15 +66,6 @@ private:
                                   Material{.color = {0.2f, 0.2f, 1.f},
                                            .emissionStrength = 0.f,
                                            .emissionColor = {0.f, 0.f, 0.f}}}},
-
-      // Larger sphere in the background (bright white emissive = light source)
-      Object{.type = Object::Type::Sphere,
-             .sphere = Sphere{.center = {-20.f, 3.f, -6.f},
-                              .radius = 10.f,
-                              .material =
-                                  Material{.color = {1.f, 1.f, 0.5f},
-                                           .emissionStrength = 2.f,
-                                           .emissionColor = {1.f, 1.f, 1.f}}}},
 
       // Tiny sphere floating above (yellow diffuse)
       Object{.type = Object::Type::Sphere,

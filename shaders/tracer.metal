@@ -8,9 +8,28 @@
 #include <metal_stdlib>
 using namespace metal;
 
-constant size_t maxBounceCount = 8;
-constant size_t samplesPerPixel = 10;
+constant size_t maxBounceCount = 2;
+constant size_t samplesPerPixel = 40;
 constant float focalLength = 4.f;
+// 1 is regular strength, 0 is black / nonexistant
+constant float environmentColorStrength = 0.f;
+constant float sunStrength = 0.f;
+
+float3 getEnvironmentColor(const thread Ray &ray) {
+    // Define environment colors
+    constexpr float3 groundColor = float3(0.3f, 0.3f, 0.3f);
+    constexpr float3 skyColor = float3(0.05f, 0.2f, 0.7f);
+
+    float3 baseColor = mix(groundColor, skyColor, ray.direction.y / 2.f + 0.5f) * environmentColorStrength;
+
+    // Sun contribution
+    const float3 sunDir = normalize(float3(0.5f, 0.1f, 0.4f));
+    constexpr float3 sunColor = float3(1.0f, 1.0f, 0.7f);
+    float sunIntensity = pow(max(dot(ray.direction, sunDir), 0.0f), 500.f) * sunStrength;
+    baseColor += sunColor * sunIntensity;
+
+    return baseColor;
+}
 
 half3 trace(const thread Ray &initialRay, const thread Scene &scene, thread rngPCG32 &rng) {
   Ray ray = initialRay;
@@ -33,12 +52,7 @@ half3 trace(const thread Ray &initialRay, const thread Scene &scene, thread rngP
       continue;
     }
     
-    break;
-    
-    const float scaledY = (ray.direction.y + 1.0f) * 0.5f;
-    constexpr float3 bottomSkybox = 1.0f;
-    constexpr float3 topSkybox = float3(0.5f, 0.7f, 1.0f);
-    emittedLight = color * ((1 - scaledY) * bottomSkybox + scaledY * topSkybox);
+    emittedLight += color * getEnvironmentColor(ray);
     
     break;
   }
@@ -65,20 +79,18 @@ struct Camera {
   }
 };
 
-kernel void tracer(
-  texture2d<half, access::write> outTexture [[texture(0)]],
-  constant unsigned long* shaderIter [[buffer(0)]],
-  constant Camera* camera [[buffer(1)]],
-  constant Object* objects [[buffer(2)]],
-  constant uint32_t* objectCount [[buffer(3)]],
-  uint2 gid [[thread_position_in_grid]]) {
-
+kernel void tracer(texture2d<half, access::read_write> outTexture [[texture(0)]],
+                   constant unsigned long* shaderIter [[buffer(0)]],
+                   constant Camera* camera [[buffer(1)]],
+                   constant Object* objects [[buffer(2)]],
+                   constant uint32_t* objectCount [[buffer(3)]],
+                   uint2 gid [[thread_position_in_grid]]) {
   const float width = float(outTexture.get_width());
   const float height = float(outTexture.get_height());
 
   if (gid.x >= width || gid.y >= height) return;
   
-  const uint64_t seed = ((uint64_t)gid.y * outTexture.get_width() + gid.x) + 1;
+  const uint64_t seed = ((uint64_t)gid.y * outTexture.get_width() + gid.x) + 1 + *shaderIter * outTexture.get_width() * outTexture.get_height();
   rngPCG32 rng = rngPCG32{ .state=seed, .inc=(seed << 1) | 1 };
   // Advance the RNG to ensure randomness
   randomIntPCG32(rng);
@@ -97,7 +109,8 @@ kernel void tracer(
     color += trace(ray, scene, rng);
   }
   
-  outTexture.write(half4(color / samplesPerPixel, 1.0), gid);
+  half4 finalColor = half4(color / samplesPerPixel, 1.0);
+  outTexture.write((finalColor + outTexture.read(gid)) / 2, gid);
 
   // outTexture.write(half4(half3(rayDir), 1.0), gid);
 }
