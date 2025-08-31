@@ -6,9 +6,11 @@
 #include <simd/simd.h>
 
 struct Material {
+  enum class Type { Metal, Matte };
   simd::float3 color;
   float emissionStrength;
   simd::float3 emissionColor;
+  Type type;
 };
 
 struct Sphere {

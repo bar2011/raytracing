@@ -1,8 +1,8 @@
 #pragma once
 
 #include "intersection.h"
-#include "ray.h"
 #include "material.h"
+#include "ray.h"
 
 #include <metal_stdlib>
 using namespace metal;
@@ -15,7 +15,8 @@ struct Sphere {
   // ray - the ray that intersection is checked upon
   // returns object with intersection details (didHit=false if didn't intersect)
   // NOTE: the field ray.direction is assumed to be normalized.
-  Intersection intersect(const thread Ray &ray, float minTime = 0) constant const {
+  Intersection intersect(const thread Ray &ray,
+                         float minTime = 0) constant const {
     const float3 originToCenter = center - ray.origin;
     const float timeIntersectCenter = dot(originToCenter, ray.direction);
     if (timeIntersectCenter < minTime)
@@ -32,11 +33,10 @@ struct Sphere {
       return Intersection{.didHit = false};
     if (discriminant == 0) {
       Intersection intersection =
-      Intersection{.didHit = true,
-          .time = timeIntersectCenter,
-          .point = ray.at(timeIntersectCenter),
-          .material = material
-      };
+          Intersection{.didHit = true,
+                       .time = timeIntersectCenter,
+                       .point = ray.at(timeIntersectCenter),
+                       .material = material};
 
       // P is on the sphere, so |P-C|=R, so dividing by R makes it normalized
       float3 normal = (intersection.point - center) / radius;
@@ -55,10 +55,10 @@ struct Sphere {
 
     const float time = min(t1, t2); // time is the smallest of the two times
 
-    Intersection intersection =
-    Intersection{
-      .didHit = true, .time = time, .point = ray.at(time), .material = material
-    };
+    Intersection intersection = Intersection{.didHit = true,
+                                             .time = time,
+                                             .point = ray.at(time),
+                                             .material = material};
 
     // P is on the sphere, so |P-C|=R, so dividing by R makes it normalized
     float3 normal = (intersection.point - center) / radius;

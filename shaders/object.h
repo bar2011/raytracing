@@ -20,7 +20,8 @@ struct Object {
   // ray - the ray that intersection is checked upon
   // returns object with intersection details (didHit=false if didn't intersect)
   // NOTE: the field ray.direction is assumed to be normalized.
-  Intersection intersect(const thread Ray &ray, float minTime = 0) constant const {
+  Intersection intersect(const thread Ray &ray,
+                         float minTime = 0) constant const {
     switch (type) {
     case Type::Sphere:
       return sphere.intersect(ray, minTime);

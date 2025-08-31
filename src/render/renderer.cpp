@@ -134,7 +134,7 @@ void Renderer::buildTexture() {
   textureDesc->setWidth(AppConstants::WindowWidth);
   textureDesc->setHeight(AppConstants::WindowHeight);
   textureDesc->setStorageMode(MTL::StorageModeManaged);
-  textureDesc->setPixelFormat(MTL::PixelFormatRGBA16Float);
+  textureDesc->setPixelFormat(MTL::PixelFormatRGBA32Float);
   textureDesc->setUsage(MTL::TextureUsageShaderWrite |
                         MTL::TextureUsageShaderRead |
                         MTL::TextureUsageRenderTarget);
