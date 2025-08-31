@@ -5,6 +5,7 @@
 #include "object.h"
 #include "utils/camera.h"
 #include <MetalKit/MetalKit.hpp>
+#include <cstdint>
 
 class Renderer {
 public:
@@ -27,8 +28,11 @@ private:
 
   std::shared_ptr<Camera> m_camera{std::make_shared<Camera>(0.1f, 0.2f)};
 
-  size_t m_iteration{};
   MTL::Texture *m_screenTexture{};
+  // Holds the iteration num since m_retainTexture changed
+  uint32_t m_iteration{};
+  // If true, will keep adding results to texture and just show their average
+  bool m_retainTexture{false};
 
   std::array<Object, 6> m_objects{
       // Huge ground sphere (purple floor)

@@ -24,6 +24,8 @@ enum class KeyCode : unsigned int;
 
 bool isKeyDown(KeyCode key);
 
+bool isKeyPressed(KeyCode key);
+
 std::unordered_map<KeyCode, bool> getKeysState();
 
 enum class KeyCode : unsigned int {

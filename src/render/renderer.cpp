@@ -8,6 +8,7 @@
 #include "Metal/MTLTypes.hpp"
 #include "app/constants.h"
 #include "utils/camera.h"
+#include "utils/devices.h"
 #include <cstddef>
 #include <cstdint>
 #include <stdexcept>
@@ -25,6 +26,10 @@ Renderer::~Renderer() {
 }
 
 void Renderer::draw(MTK::View *view) {
+  if (isKeyPressed(KeyCode::F8)) {
+    m_retainTexture = !m_retainTexture;
+    m_iteration = 0;
+  }
   m_iteration++;
 
   NS::AutoreleasePool *autoreleasePool{NS::AutoreleasePool::alloc()->init()};
@@ -40,11 +45,12 @@ void Renderer::draw(MTK::View *view) {
 
   uint32_t objectCount{static_cast<uint32_t>(m_objects.size())};
 
-  computeEncoder->setBytes(&m_iteration, sizeof(size_t), 0);
-  computeEncoder->setBytes(&cameraVectors, sizeof(Camera::CameraVectors), 1);
+  computeEncoder->setBytes(&m_iteration, sizeof(uint32_t), 0);
+  computeEncoder->setBytes(&m_retainTexture, sizeof(bool), 1);
+  computeEncoder->setBytes(&cameraVectors, sizeof(Camera::CameraVectors), 2);
   computeEncoder->setBytes(m_objects.data(), sizeof(Object) * m_objects.size(),
-                           2);
-  computeEncoder->setBytes(&objectCount, sizeof(uint32_t), 3);
+                           3);
+  computeEncoder->setBytes(&objectCount, sizeof(uint32_t), 4);
   computeEncoder->setTexture(m_screenTexture, 0);
 
   MTL::Size threadsPerGrid{AppConstants::WindowWidth,
@@ -59,6 +65,9 @@ void Renderer::draw(MTK::View *view) {
   auto renderEncoder{commandBuffer->renderCommandEncoder(renderPass)};
 
   renderEncoder->setRenderPipelineState(m_texturePipeline);
+
+  const uint32_t textureDivider{m_retainTexture ? m_iteration : 1};
+  renderEncoder->setFragmentBytes(&textureDivider, sizeof(uint32_t), 0);
 
   renderEncoder->setFragmentTexture(m_screenTexture, 0);
 

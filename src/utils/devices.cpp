@@ -37,11 +37,25 @@ std::pair<float, float> getMousePos() {
   return {mousePos.x, mousePos.y};
 }
 
+// Returns true if the key is currently down
 bool isKeyDown(KeyCode key) {
   // kCGEventSourceStateCombinedSessionState checks keyboard state system-wide
   bool pressed = CGEventSourceKeyState(kCGEventSourceStateCombinedSessionState,
                                        static_cast<unsigned int>(key));
   return pressed;
+}
+
+// Returns true if key moved from down to not-down since the last call
+bool isKeyPressed(KeyCode key) {
+  static auto keysState{getKeysState()};
+
+  auto currentState{getKeysState()};
+
+  bool isPressed{!currentState[key] && keysState[key]};
+
+  keysState = currentState;
+
+  return isPressed;
 }
 
 // Returns a map of every keycode, and whether it's pressed or not

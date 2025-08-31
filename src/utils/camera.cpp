@@ -46,12 +46,12 @@ Camera::CameraVectors Camera::update() {
   float originY{getDisplaySize().second - AppConstants::WindowHeight / 2.0f -
                 AppConstants::WindowY};
 
-  auto viewMatrix{
+  auto cameraVectors{
       update(forward, backward, left, right, mousePos, originX, originY)};
 
   moveMouse(originX, originY);
 
-  return viewMatrix;
+  return cameraVectors;
 }
 
 Camera::CameraVectors Camera::update(bool forward, bool backward, bool left,
@@ -59,8 +59,11 @@ Camera::CameraVectors Camera::update(bool forward, bool backward, bool left,
                                      std::pair<float, float> mousePos,
                                      float originX, float originY) {
   // update rotation
-  m_yaw += (mousePos.first - originX) * m_sensitivity;
-  m_pitch += (originY - mousePos.second) * m_sensitivity;
+  float yawDifference = (mousePos.first - originX) * m_sensitivity;
+  float pitchDifference = (originY - mousePos.second) * m_sensitivity;
+
+  m_yaw += yawDifference;
+  m_pitch += pitchDifference;
 
   if (m_yaw < 0)
     m_yaw += 360.0f;
@@ -103,5 +106,8 @@ Camera::CameraVectors Camera::update(bool forward, bool backward, bool left,
   simd::float3 pos{static_cast<float>(m_x), static_cast<float>(m_y),
                    static_cast<float>(m_z)};
 
-  return CameraVectors{rightVector, upVector, forwardVector, pos};
+  bool didMove{forward || backward || right || left || yawDifference > 0.1f ||
+               pitchDifference > 0.1f};
+
+  return CameraVectors{rightVector, upVector, forwardVector, pos, /*didMove*/};
 }

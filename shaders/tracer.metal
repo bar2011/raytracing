@@ -12,8 +12,8 @@ constant size_t maxBounceCount = 2;
 constant size_t samplesPerPixel = 40;
 constant float focalLength = 4.f;
 // 1 is regular strength, 0 is black / nonexistant
-constant float environmentColorStrength = 0.f;
-constant float sunStrength = 0.f;
+constant float environmentColorStrength = 0.1f;
+constant float sunStrength = 4.f;
 
 float3 getEnvironmentColor(const thread Ray &ray) {
     // Define environment colors
@@ -23,7 +23,7 @@ float3 getEnvironmentColor(const thread Ray &ray) {
     float3 baseColor = mix(groundColor, skyColor, ray.direction.y / 2.f + 0.5f) * environmentColorStrength;
 
     // Sun contribution
-    const float3 sunDir = normalize(float3(0.5f, 0.1f, 0.4f));
+    const float3 sunDir = normalize(float3(0.5f, 0.3f, 0.4f));
     constexpr float3 sunColor = float3(1.0f, 1.0f, 0.7f);
     float sunIntensity = pow(max(dot(ray.direction, sunDir), 0.0f), 500.f) * sunStrength;
     baseColor += sunColor * sunIntensity;
@@ -80,10 +80,11 @@ struct Camera {
 };
 
 kernel void tracer(texture2d<half, access::read_write> outTexture [[texture(0)]],
-                   constant unsigned long* shaderIter [[buffer(0)]],
-                   constant Camera* camera [[buffer(1)]],
-                   constant Object* objects [[buffer(2)]],
-                   constant uint32_t* objectCount [[buffer(3)]],
+                   constant uint32_t* shaderIter [[buffer(0)]],
+                   constant bool* retainTexture [[buffer(1)]],
+                   constant Camera* camera [[buffer(2)]],
+                   constant Object* objects [[buffer(3)]],
+                   constant uint32_t* objectCount [[buffer(4)]],
                    uint2 gid [[thread_position_in_grid]]) {
   const float width = float(outTexture.get_width());
   const float height = float(outTexture.get_height());
@@ -109,8 +110,13 @@ kernel void tracer(texture2d<half, access::read_write> outTexture [[texture(0)]]
     color += trace(ray, scene, rng);
   }
   
+  // If retainTexture is true, append current color to the previous color in the texture
+  // In the fragmentTexture takes the average of the texture throughout the iterations
   half4 finalColor = half4(color / samplesPerPixel, 1.0);
-  outTexture.write((finalColor + outTexture.read(gid)) / 2, gid);
+  if (*retainTexture)
+    outTexture.write(finalColor + outTexture.read(gid), gid);
+  else
+    outTexture.write(finalColor, gid);
 
   // outTexture.write(half4(half3(rayDir), 1.0), gid);
 }

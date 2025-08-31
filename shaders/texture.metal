@@ -26,8 +26,10 @@ vertex VertexOutput vertexTexture(uint vertexID [[vertex_id]]) {
   return out;
 }
 
+// textureDivider - the number to divide the texture color by
 fragment half4 fragmentTexture(VertexOutput in [[stage_in]],
-                               texture2d<half, access::sample> texture [[texture(0)]]) {
+                               texture2d<half, access::sample> texture [[texture(0)]],
+                               constant uint32_t *textureDivider [[buffer(0)]]) {
   constexpr sampler textureSampler( address::repeat, filter::linear );
-  return texture.sample(textureSampler, in.uv);
+  return texture.sample(textureSampler, in.uv) / *textureDivider;
 }
