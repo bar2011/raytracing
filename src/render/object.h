@@ -16,8 +16,6 @@ struct Material {
 struct Sphere {
   simd::float3 center;
   float radius;
-
-  Material material;
 };
 
 struct Triangle {
@@ -29,8 +27,6 @@ struct Triangle {
   // rays can only hit the front face. If false, the triangle is double-sided
   // and rays can hit it from either side.
   bool oneSided;
-
-  Material material;
 };
 
 struct Object {
@@ -41,4 +37,13 @@ struct Object {
     Sphere sphere;
     Triangle triangle;
   };
+};
+
+struct Mesh {
+  // Index of the first object in the objects array
+  uint32_t objectFirst;
+  // Count of mesh objects
+  uint32_t objectCount;
+  // Material to apply to all objects of the mesh
+  Material material;
 };

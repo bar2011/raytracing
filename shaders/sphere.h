@@ -11,8 +11,6 @@ struct Sphere {
   const float3 center;
   const float radius;
 
-  const Material material;
-
   // ray - the ray that intersection is checked upon
   // returns object with intersection details (didHit=false if didn't intersect)
   // NOTE: the field ray.direction is assumed to be normalized.
@@ -36,8 +34,7 @@ struct Sphere {
       Intersection intersection =
           Intersection{.didHit = true,
                        .time = timeIntersectCenter,
-                       .point = ray.at(timeIntersectCenter),
-                       .material = material};
+                       .point = ray.at(timeIntersectCenter)};
 
       // P is on the sphere, so |P-C|=R, so dividing by R makes it normalized
       float3 normal = (intersection.point - center) / radius;
@@ -58,8 +55,7 @@ struct Sphere {
 
     Intersection intersection = Intersection{.didHit = true,
                                              .time = time,
-                                             .point = ray.at(time),
-                                             .material = material};
+                                             .point = ray.at(time)};
 
     // P is on the sphere, so |P-C|=R, so dividing by R makes it normalized
     float3 normal = (intersection.point - center) / radius;

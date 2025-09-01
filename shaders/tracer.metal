@@ -5,6 +5,7 @@
 #include "scene.h"
 #include "sphere.h"
 #include "triangle.h"
+#include "mesh.h"
 
 #include <metal_stdlib>
 using namespace metal;
@@ -98,6 +99,8 @@ kernel void tracer(texture2d<float, access::read_write> outTexture
                    constant Camera *camera [[buffer(2)]],
                    constant Object *objects [[buffer(3)]],
                    constant uint32_t *objectCount [[buffer(4)]],
+                   constant Mesh *meshes [[buffer(5)]],
+                   constant uint32_t *meshCount [[buffer(6)]],
                    uint2 gid [[thread_position_in_grid]]) {
   const float width = float(outTexture.get_width());
   const float height = float(outTexture.get_height());
@@ -112,7 +115,7 @@ kernel void tracer(texture2d<float, access::read_write> outTexture
   // Advance the RNG to ensure randomness
   randomIntPCG32(rng);
 
-  Scene scene = Scene{.objects = objects, .objectCount = *objectCount};
+  Scene scene = Scene{.objects = objects, .objectCount = *objectCount, .meshes = meshes, .meshCount = *meshCount};
 
   float3 color = 0;
 

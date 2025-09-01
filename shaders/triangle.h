@@ -17,8 +17,6 @@ struct Triangle {
   // and rays can hit it from either side.
   bool oneSided;
 
-  const Material material;
-
   // ray - the ray that intersection is checked upon
   // returns object with intersection details (didHit=false if didn't intersect)
   // NOTE: the field ray.direction is assumed to be normalized.
@@ -59,8 +57,7 @@ struct Triangle {
 
     Intersection intersection = Intersection{.didHit = true,
                                              .time = time,
-                                             .point = ray.at(time),
-                                             .material = material};
+                                             .point = ray.at(time)};
 
     intersection.setFaceNormal(ray, normalize(normal));
 

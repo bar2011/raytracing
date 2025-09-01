@@ -44,6 +44,7 @@ void Renderer::draw(MTK::View *view) {
   auto cameraVectors{m_camera->update()};
 
   uint32_t objectCount{static_cast<uint32_t>(m_objects.size())};
+  uint32_t meshCount{static_cast<uint32_t>(m_meshes.size())};
 
   computeEncoder->setBytes(&m_iteration, sizeof(uint32_t), 0);
   computeEncoder->setBytes(&m_retainTexture, sizeof(bool), 1);
@@ -51,6 +52,8 @@ void Renderer::draw(MTK::View *view) {
   computeEncoder->setBytes(m_objects.data(), sizeof(Object) * m_objects.size(),
                            3);
   computeEncoder->setBytes(&objectCount, sizeof(uint32_t), 4);
+  computeEncoder->setBytes(m_meshes.data(), sizeof(Mesh) * m_meshes.size(), 5);
+  computeEncoder->setBytes(&meshCount, sizeof(uint32_t), 6);
   computeEncoder->setTexture(m_screenTexture, 0);
 
   MTL::Size threadsPerGrid{AppConstants::WindowWidth,

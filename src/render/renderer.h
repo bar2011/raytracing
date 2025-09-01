@@ -34,88 +34,56 @@ private:
   // If true, will keep adding results to texture and just show their average
   bool m_retainTexture{false};
 
-  // Updated object list with one triangle
-  std::array<Object, 8> m_objects{
-      // Huge ground sphere (purple floor)
-      Object{.type = Object::Type::Sphere,
-             .sphere =
-                 Sphere{.center = {0.f, -20.f, 0.f},
-                        .radius = 20.f,
-                        .material = Material{.color = {1.f, 0.2f, 1.f},
-                                             .emissionStrength = 0.f,
-                                             .emissionColor = {0.f, 0.f, 0.f},
-                                             .type = Material::Type::Matte}}},
+  std::array<Object, 5> m_objects = {{
+      {.type = Object::Type::Sphere,
+       .sphere = {.center = {0.0f, 1.0f, 0.0f},
+                  .radius =
+                      1.0f}}, // Glowing sphere hovering at (0,1,0), radius 1
+      {.type = Object::Type::Triangle,
+       .triangle = {.a = {-5.0f, 0.0f, -5.0f},
+                    .b = {5.0f, 0.0f, -5.0f},
+                    .c = {-5.0f, 0.0f, 5.0f},
+                    .oneSided =
+                        true}}, // First half of ground plane (left triangle)
+      {.type = Object::Type::Triangle,
+       .triangle = {.a = {5.0f, 0.0f, -5.0f},
+                    .b = {5.0f, 0.0f, 5.0f},
+                    .c = {-5.0f, 0.0f, 5.0f},
+                    .oneSided =
+                        true}}, // Second half of ground plane (right triangle)
+                                // → together they form a 10x10 metallic floor
+      {.type = Object::Type::Triangle,
+       .triangle = {.a = {-5.0f, 0.0f, -5.0f},
+                    .b = {5.0f, 0.0f, -5.0f},
+                    .c = {-5.0f, 5.0f, -10.0f},
+                    .oneSided = false}}, // First half of backdrop wall (left
+                                         // triangle) tilted slightly backward
+      {.type = Object::Type::Triangle,
+       .triangle = {.a = {5.0f, 0.0f, -5.0f},
+                    .b = {5.0f, 5.0f, -10.0f},
+                    .c = {-5.0f, 5.0f, -10.0f},
+                    .oneSided = false}} // Second half of backdrop wall (right
+                                        // triangle) → together they form a
+                                        // vertical rectangle behind sphere
+  }};
 
-      // Small sphere "sitting" on the ground (red metal)
-      Object{.type = Object::Type::Sphere,
-             .sphere =
-                 Sphere{.center = {0.f, 1.f, 0.f},
-                        .radius = 1.f,
-                        .material = Material{.color = {1.f, 0.2f, 0.2f},
-                                             .emissionStrength = 0.f,
-                                             .emissionColor = {0.f, 0.f, 0.f},
-                                             .type = Material::Type::Metal}}},
-
-      // Medium sphere to the left (green diffuse)
-      Object{.type = Object::Type::Sphere,
-             .sphere =
-                 Sphere{.center = {-2.f, 1.f, -3.f},
-                        .radius = 2.f,
-                        .material = Material{.color = {0.2f, 0.9f, 0.2f},
-                                             .emissionStrength = 0.f,
-                                             .emissionColor = {0.f, 0.f, 0.f},
-                                             .type = Material::Type::Matte}}},
-
-      // Small sphere to the right (blue diffuse)
-      Object{.type = Object::Type::Sphere,
-             .sphere =
-                 Sphere{.center = {2.f, 0.5f, -2.f},
-                        .radius = 0.5f,
-                        .material = Material{.color = {0.2f, 0.2f, 1.f},
-                                             .emissionStrength = 0.f,
-                                             .emissionColor = {0.f, 0.f, 0.f},
-                                             .type = Material::Type::Matte}}},
-
-      // Tiny sphere floating above (yellow diffuse)
-      Object{.type = Object::Type::Sphere,
-             .sphere =
-                 Sphere{.center = {1.5f, 4.f, -1.f},
-                        .radius = 0.25f,
-                        .material = Material{.color = {1.f, 1.f, 0.2f},
-                                             .emissionStrength = 0.f,
-                                             .emissionColor = {0.f, 0.f, 0.f},
-                                             .type = Material::Type::Matte}}},
-
-      // Small sphere, metallic (silver)
-      Object{.type = Object::Type::Sphere,
-             .sphere =
-                 Sphere{.center = {-1.f, 2.f, 1.f},
-                        .radius = 0.75f,
-                        .material = Material{.color = {0.8f, 0.8f, 0.8f},
-                                             .emissionStrength = 0.f,
-                                             .emissionColor = {0.f, 0.f, 0.f},
-                                             .type = Material::Type::Metal}}},
-
-      // Triangle (a small green triangle in the scene)
-      Object{.type = Object::Type::Triangle,
-             .triangle =
-                 Triangle{.a = {0.f, 0.f, -1.f},
-                          .b = {1.f, 0.f, -1.f},
-                          .c = {0.5f, 1.f, -1.f},
-                          .oneSided = true,
-                          .material = Material{.color = {0.2f, 1.f, 0.2f},
-                                               .emissionStrength = 0.f,
-                                               .emissionColor = {0.f, 0.f, 0.f},
-                                               .type = Material::Type::Matte}}},
-      // Triangle (a medium black triangle in the scene)
-      Object{.type = Object::Type::Triangle,
-             .triangle = Triangle{
-                 .a = {0.f, 0.f, -2.f},
-                 .b = {2.f, 0.f, -3.f},
-                 .c = {0.5f, 5.f, -1.f},
-                 .oneSided = false,
-                 .material = Material{.color = {0.1f, 0.1f, 0.1f},
-                                      .emissionStrength = 0.f,
-                                      .emissionColor = {0.f, 0.f, 0.f},
-                                      .type = Material::Type::Matte}}}};
+  std::array<Mesh, 2> m_meshes = {{
+      {.objectFirst = 0,
+       .objectCount = 1,
+       .material =
+           {.color = {1.0f, 0.2f, 0.2f},
+            .emissionStrength = 5.0f,
+            .emissionColor = {1.0f, 0.3f, 0.3f},
+            .type = Material::Type::Metal}}, // Mesh 0 → glowing red matte
+                                             // sphere (emissive light source)
+      {.objectFirst = 1,
+       .objectCount = 4,
+       .material =
+           {.color = {0.8f, 0.8f, 0.9f},
+            .emissionStrength = 0.0f,
+            .emissionColor = {0.0f, 0.0f, 0.0f},
+            .type = Material::Type::Matte}} // Mesh 1 → metallic floor +
+                                            // metallic wall (reflective
+                                            // environment around the sphere)
+  }};
 };
