@@ -36,8 +36,8 @@ float3 getEnvironmentColor(const thread Ray &ray) {
 float3 trace(const thread Ray &initialRay, const thread Scene &scene,
             thread rngPCG32 &rng) {
   Ray ray = initialRay;
-  float3 color = 1.0;
-  float3 emittedLight = 0.0;
+  float3 pixelColor = 1.0;
+  float3 throughputColor = 0.0;
 
   for (size_t i = 0; i < maxBounceCount; ++i) {
     Intersection intersection = scene.intersect(ray);
@@ -46,17 +46,20 @@ float3 trace(const thread Ray &initialRay, const thread Scene &scene,
 
       float3 emission = intersection.material.emissionStrength *
                         intersection.material.emissionColor;
-      emittedLight += emission * color;
+      throughputColor += emission * pixelColor;
 
-      color *= intersection.material.color;
+      // Compute bounce weight as cos(alpha) * 2
+      // According to the lambertian diffuse cosine weighing
+      float bounceWeight = dot(intersection.normal, ray.direction) * 2;
+      pixelColor *= intersection.material.color * bounceWeight;
       continue;
     }
 
-    emittedLight += color * getEnvironmentColor(ray);
+    throughputColor += pixelColor * getEnvironmentColor(ray);
     break;
   }
 
-  return emittedLight;
+  return throughputColor;
 }
 
 struct Camera {
