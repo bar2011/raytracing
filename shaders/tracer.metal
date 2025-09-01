@@ -10,12 +10,12 @@
 #include <metal_stdlib>
 using namespace metal;
 
-constant size_t maxBounceCount = 6;
-constant size_t samplesPerPixel = 10;
+constant size_t maxBounceCount = 8;
+constant size_t samplesPerPixel = 1;
 constant float focalLength = 4.f;
 // 1 is regular strength, 0 is black / nonexistant
-constant float environmentColorStrength = 1.f;
-constant float sunStrength = 4.f;
+constant float environmentColorStrength = 0.f;
+constant float sunStrength = 0.f;
 
 float3 getEnvironmentColor(const thread Ray &ray) {
   // Define environment colors
