@@ -8,9 +8,9 @@
 using namespace metal;
 
 struct Sphere {
-  float3 center;
-  float radius;
-  Material material;
+  const float3 center;
+  const float radius;
+  const Material material;
 
   // ray - the ray that intersection is checked upon
   // returns object with intersection details (didHit=false if didn't intersect)
