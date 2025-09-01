@@ -43,6 +43,7 @@ float3 trace(const thread Ray &initialRay, const thread Scene &scene,
   for (size_t i = 0; i < maxBounceCount; ++i) {
     Intersection intersection = scene.intersect(ray);
     if (intersection.didHit) {
+      float3 rayDirIn = -ray.direction;
       intersection.material.interact(intersection, ray, rng);
 
       float3 emission = intersection.material.emissionStrength *
@@ -51,14 +52,19 @@ float3 trace(const thread Ray &initialRay, const thread Scene &scene,
 
       // Compute bounce weight as cos(alpha) * 2
       // According to the lambertian diffuse cosine weighing
-      float bounceWeight = dot(intersection.normal, ray.direction) * 2;
+      float bounceWeight = dot(intersection.normal, rayDirIn) * 2;
       pixelColor *= intersection.material.color * bounceWeight;
+      
+      if (!all(isfinite(throughputColor))) break;
+      
       continue;
     }
 
     throughputColor += pixelColor * getEnvironmentColor(ray);
     break;
   }
+  
+  if (!all(isfinite(throughputColor))) return float3(0, 0, 0);
 
   return throughputColor;
 }
