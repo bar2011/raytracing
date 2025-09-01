@@ -16,16 +16,29 @@ struct Material {
 struct Sphere {
   simd::float3 center;
   float radius;
+
+  Material material;
+};
+
+struct Triangle {
+  simd::float3 a;
+  simd::float3 b;
+  simd::float3 c;
+
+  // If true, the triangle is one-sided (back-face culled):
+  // rays can only hit the front face. If false, the triangle is double-sided
+  // and rays can hit it from either side.
+  bool oneSided;
+
   Material material;
 };
 
 struct Object {
-  enum class Type {
-    Sphere,
-  };
+  enum class Type { Sphere, Triangle };
 
   Type type;
   union {
     Sphere sphere;
+    Triangle triangle;
   };
 };

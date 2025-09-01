@@ -10,6 +10,7 @@ using namespace metal;
 struct Sphere {
   const float3 center;
   const float radius;
+
   const Material material;
 
   // ray - the ray that intersection is checked upon

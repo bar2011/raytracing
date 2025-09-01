@@ -4,6 +4,7 @@
 #include "ray.h"
 #include "scene.h"
 #include "sphere.h"
+#include "triangle.h"
 
 #include <metal_stdlib>
 using namespace metal;

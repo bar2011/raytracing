@@ -34,7 +34,8 @@ private:
   // If true, will keep adding results to texture and just show their average
   bool m_retainTexture{false};
 
-  std::array<Object, 6> m_objects{
+  // Updated object list with one triangle
+  std::array<Object, 8> m_objects{
       // Huge ground sphere (purple floor)
       Object{.type = Object::Type::Sphere,
              .sphere =
@@ -93,5 +94,28 @@ private:
                         .material = Material{.color = {0.8f, 0.8f, 0.8f},
                                              .emissionStrength = 0.f,
                                              .emissionColor = {0.f, 0.f, 0.f},
-                                             .type = Material::Type::Metal}}}};
+                                             .type = Material::Type::Metal}}},
+
+      // Triangle (a small green triangle in the scene)
+      Object{.type = Object::Type::Triangle,
+             .triangle =
+                 Triangle{.a = {0.f, 0.f, -1.f},
+                          .b = {1.f, 0.f, -1.f},
+                          .c = {0.5f, 1.f, -1.f},
+                          .oneSided = true,
+                          .material = Material{.color = {0.2f, 1.f, 0.2f},
+                                               .emissionStrength = 0.f,
+                                               .emissionColor = {0.f, 0.f, 0.f},
+                                               .type = Material::Type::Matte}}},
+      // Triangle (a medium black triangle in the scene)
+      Object{.type = Object::Type::Triangle,
+             .triangle = Triangle{
+                 .a = {0.f, 0.f, -2.f},
+                 .b = {2.f, 0.f, -3.f},
+                 .c = {0.5f, 5.f, -1.f},
+                 .oneSided = false,
+                 .material = Material{.color = {0.1f, 0.1f, 0.1f},
+                                      .emissionStrength = 0.f,
+                                      .emissionColor = {0.f, 0.f, 0.f},
+                                      .type = Material::Type::Matte}}}};
 };
