@@ -39,6 +39,7 @@ glob_sources("${CMAKE_SOURCE_DIR}/src/app" APP_SOURCES)
 glob_sources("${CMAKE_SOURCE_DIR}/src/render" RENDER_SOURCES)
 glob_sources("${CMAKE_SOURCE_DIR}/src/utils" UTILS_SOURCES)
 glob_sources("${CMAKE_SOURCE_DIR}/src/runtime" RUNTIME_SOURCES)
+glob_sources("${CMAKE_SOURCE_DIR}/src/models" MODELS_SOURCES)
 glob_sources("${CMAKE_SOURCE_DIR}/shaders" METAL_SHADER_SOURCES)
 
 # Compile each folder as a static library
@@ -46,6 +47,7 @@ add_library(app STATIC ${APP_SOURCES})
 add_library(render STATIC ${RENDER_SOURCES})
 add_library(utils STATIC ${UTILS_SOURCES})
 add_library(runtime STATIC ${RUNTIME_SOURCES})
+add_library(models STATIC ${MODELS_SOURCES})
 
 # Main executable
 add_executable(raytracer MACOSX_BUNDLE "src/runtime/main.cpp")
@@ -70,6 +72,7 @@ target_link_libraries(
           render
           utils
           runtime
+          models
           stdc++
           "-framework Metal"
           "-framework AppKit"
@@ -82,3 +85,4 @@ target_include_directories(render PRIVATE dependencies src)
 target_include_directories(utils PRIVATE dependencies src)
 target_include_directories(runtime PRIVATE dependencies src)
 target_include_directories(raytracer PRIVATE dependencies src)
+target_include_directories(models PRIVATE dependencies src)

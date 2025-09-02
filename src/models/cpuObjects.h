@@ -4,6 +4,7 @@
 #pragma once
 
 #include <simd/simd.h>
+#include <vector>
 
 struct Material {
   enum class Type { Metal, Matte };
@@ -29,6 +30,7 @@ struct Triangle {
   bool oneSided;
 };
 
+// Object: describes an object primitive
 struct Object {
   enum class Type { Sphere, Triangle };
 
@@ -39,11 +41,19 @@ struct Object {
   };
 };
 
+// Mesh: passed to the actual shader in a mesh array and contains information
+// about groups of objects
 struct Mesh {
   // Index of the first object in the objects array
   uint32_t objectFirst;
   // Count of mesh objects
   uint32_t objectCount;
   // Material to apply to all objects of the mesh
+  Material material;
+};
+
+// Model: a CPU-only struct which contains object + material information
+struct Model {
+  std::vector<Object> objects;
   Material material;
 };

@@ -7,6 +7,8 @@
 #include "Metal/MTLRenderPass.hpp"
 #include "Metal/MTLTypes.hpp"
 #include "app/constants.h"
+#include "models/allModels.h"
+#include "models/cpuObjects.h"
 #include "utils/camera.h"
 #include "utils/devices.h"
 #include <cstddef>
@@ -43,17 +45,22 @@ void Renderer::draw(MTK::View *view) {
 
   auto cameraVectors{m_camera->update()};
 
-  uint32_t objectCount{static_cast<uint32_t>(m_objects.size())};
-  uint32_t meshCount{static_cast<uint32_t>(m_meshes.size())};
+  std::vector<Object> objects{};
+  std::vector<Mesh> meshes{};
+
+  Models::getGPUmodels(objects, meshes);
+
+  uint32_t objectCount{static_cast<uint32_t>(objects.size())};
+  uint32_t meshCount{static_cast<uint32_t>(meshes.size())};
 
   computeEncoder->setBytes(&m_iteration, sizeof(uint32_t), 0);
   computeEncoder->setBytes(&m_retainTexture, sizeof(bool), 1);
   computeEncoder->setBytes(&cameraVectors, sizeof(Camera::CameraVectors), 2);
-  computeEncoder->setBytes(m_objects.data(), sizeof(Object) * m_objects.size(),
-                           3);
+  computeEncoder->setBytes(objects.data(), sizeof(Object) * objects.size(), 3);
   computeEncoder->setBytes(&objectCount, sizeof(uint32_t), 4);
-  computeEncoder->setBytes(m_meshes.data(), sizeof(Mesh) * m_meshes.size(), 5);
+  computeEncoder->setBytes(meshes.data(), sizeof(Mesh) * meshes.size(), 5);
   computeEncoder->setBytes(&meshCount, sizeof(uint32_t), 6);
+
   computeEncoder->setTexture(m_screenTexture, 0);
 
   MTL::Size threadsPerGrid{AppConstants::WindowWidth,
