@@ -7,19 +7,19 @@ const inline Model roof{
     .objects =
         {
             Object{.type = Object::Type::Triangle,
-                   .triangle = {.a = {2.0f, 2.0f, 0.0f},
-                                .b = {0.0f, 2.0f, 0.0f},
-                                .c = {0.0f, 2.0f, 2.0f},
+                   .triangle = {.a = {2.f, 4.f, -2.f},
+                                .b = {-2.f, 4.f, 2.f},
+                                .c = {-2.f, 4.f, -2.f},
                                 .oneSided = true}},
             Object{.type = Object::Type::Triangle,
-                   .triangle = {.a = {2.0f, 2.0f, 2.0f},
-                                .b = {2.0f, 2.0f, 0.0f},
-                                .c = {0.0f, 2.0f, 2.0f},
+                   .triangle = {.a = {2.f, 4.f, 2.f},
+                                .b = {-2.f, 4.f, 2.f},
+                                .c = {2.f, 4.f, -2.f},
                                 .oneSided = true}},
         },
     .material = {.color = {0.95f, 0.25f, 0.52f},
-                 .emissionStrength = 0.0f,
-                 .emissionColor = {0.0f, 0.0f, 0.0f},
+                 .emissionStrength = 0.f,
+                 .emissionColor = {0.f, 0.f, 0.f},
                  .type = Material::Type::Matte},
 };
 }

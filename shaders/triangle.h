@@ -28,12 +28,12 @@ struct Triangle {
     // Unnormalized
     const float3 normal = cross(edge1, edge2);
 
-    if (oneSided && dot(normal, ray.direction) < 0.f)
-      return Intersection{.didHit = false};
-
     float determinant = -dot(ray.direction, normal);
 
     if (abs(determinant) < 1e-5)
+      return Intersection{.didHit = false};
+
+    if (oneSided && determinant < 0.f)
       return Intersection{.didHit = false};
 
     float inverseDeterminant = 1.f / determinant;
@@ -55,9 +55,8 @@ struct Triangle {
     if (time < minTime)
       return Intersection{.didHit = false};
 
-    Intersection intersection = Intersection{.didHit = true,
-                                             .time = time,
-                                             .point = ray.at(time)};
+    Intersection intersection =
+        Intersection{.didHit = true, .time = time, .point = ray.at(time)};
 
     intersection.setFaceNormal(ray, normalize(normal));
 

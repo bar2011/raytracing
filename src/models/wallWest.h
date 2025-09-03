@@ -7,19 +7,19 @@ const inline Model wallWest{
     .objects =
         {
             Object{.type = Object::Type::Triangle,
-                   .triangle = {.a = {0.0f, 0.0f, 0.0f},
-                                .b = {0.0f, 0.0f, 2.0f},
-                                .c = {0.0f, 2.0f, 0.0f},
+                   .triangle = {.a = {-2.f, 0.f, -2.f},
+                                .b = {-2.f, 4.f, -2.f},
+                                .c = {-2.f, 0.f, 2.f},
                                 .oneSided = true}},
             Object{.type = Object::Type::Triangle,
-                   .triangle = {.a = {0.0f, 0.0f, 2.0f},
-                                .b = {0.0f, 2.0f, 2.0f},
-                                .c = {0.0f, 2.0f, 0.0f},
+                   .triangle = {.a = {-2.f, 0.f, 2.f},
+                                .b = {-2.f, 4.f, -2.f},
+                                .c = {-2.f, 4.f, 2.f},
                                 .oneSided = true}},
         },
-    .material = {.color = {1.0f, 1.0f, 0.3f},
-                 .emissionStrength = 0.0f,
-                 .emissionColor = {0.0f, 0.0f, 0.0f},
+    .material = {.color = {1.f, 1.f, 0.3f},
+                 .emissionStrength = 0.f,
+                 .emissionColor = {0.f, 0.f, 0.f},
                  .type = Material::Type::Matte},
 };
 }
