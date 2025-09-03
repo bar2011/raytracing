@@ -5,6 +5,7 @@
 #include "Metal/MTLPixelFormat.hpp"
 #include "Metal/MTLRenderCommandEncoder.hpp"
 #include "Metal/MTLRenderPass.hpp"
+#include "Metal/MTLResource.hpp"
 #include "Metal/MTLTypes.hpp"
 #include "app/constants.h"
 #include "models/allModels.h"
@@ -53,12 +54,18 @@ void Renderer::draw(MTK::View *view) {
   uint32_t objectCount{static_cast<uint32_t>(objects.size())};
   uint32_t meshCount{static_cast<uint32_t>(meshes.size())};
 
+  auto objectsBuffer{m_device->newBuffer(objects.data(),
+                                         sizeof(Object) * objectCount,
+                                         MTL::ResourceStorageModeShared)};
+  auto meshBuffer{m_device->newBuffer(meshes.data(), sizeof(Mesh) * meshCount,
+                                      MTL::ResourceStorageModeShared)};
+
   computeEncoder->setBytes(&m_iteration, sizeof(uint32_t), 0);
   computeEncoder->setBytes(&m_retainTexture, sizeof(bool), 1);
   computeEncoder->setBytes(&cameraVectors, sizeof(Camera::CameraVectors), 2);
-  computeEncoder->setBytes(objects.data(), sizeof(Object) * objects.size(), 3);
+  computeEncoder->setBuffer(objectsBuffer, 0, 3);
   computeEncoder->setBytes(&objectCount, sizeof(uint32_t), 4);
-  computeEncoder->setBytes(meshes.data(), sizeof(Mesh) * meshes.size(), 5);
+  computeEncoder->setBuffer(meshBuffer, 0, 5);
   computeEncoder->setBytes(&meshCount, sizeof(uint32_t), 6);
 
   computeEncoder->setTexture(m_screenTexture, 0);
