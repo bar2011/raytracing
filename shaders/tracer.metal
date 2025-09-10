@@ -14,8 +14,8 @@ constant size_t maxBounceCount = 8;
 constant size_t samplesPerPixel = 1;
 constant float focalLength = 4.f;
 // 1 is regular strength, 0 is black / nonexistant
-constant float environmentColorStrength = 0.f;
-constant float sunStrength = 0.f;
+constant float environmentColorStrength = 1.f;
+constant float sunStrength = 1.f;
 
 float3 getEnvironmentColor(const thread Ray &ray) {
   // Define environment colors
@@ -65,9 +65,10 @@ float3 trace(const thread Ray &initialRay, const thread Scene &scene,
     break;
   }
   
-  if (!all(isfinite(throughputColor))) return float3(0, 0, 0);
+  if (!all(isfinite(throughputColor)) || !all(isfinite(pixelColor)))
+    return float3(0, 0, 0);
 
-  return throughputColor;
+  return clamp(throughputColor, 0.f, 1.f);
 }
 
 struct Camera {
