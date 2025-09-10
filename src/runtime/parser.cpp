@@ -27,7 +27,7 @@ std::vector<std::string> parseOBJ(const std::string &fileName) {
   std::vector<simd::float3> vertices{};
   std::vector<Triangle> faces{};
 
-  std::vector<std::string> resultModelFiles{};
+  std::vector<std::string> resultModelVars{};
 
   std::string currentModelName{"modelname"};
 
@@ -38,10 +38,11 @@ std::vector<std::string> parseOBJ(const std::string &fileName) {
       // If vertices/faces exist, create a model file from them before moving to
       // the next model
       if (faces.size() > 0)
-        resultModelFiles.push_back(createModelFile(faces, currentModelName));
+        resultModelVars.push_back(createModelVar(faces, currentModelName));
 
       std::string prefix;
       lineSS >> prefix >> currentModelName;
+      faces.clear();
     } else if (line.starts_with("v ")) {
       std::string prefix;
       std::array<float, 4> v{};
@@ -76,18 +77,16 @@ std::vector<std::string> parseOBJ(const std::string &fileName) {
 
   // Create final model file
   if (faces.size() > 0)
-    resultModelFiles.push_back(createModelFile(faces, currentModelName));
+    resultModelVars.push_back(createModelVar(faces, currentModelName));
 
-  return resultModelFiles;
+  return resultModelVars;
 }
 
-std::string createModelFile(const std::vector<Triangle> &faces,
-                            std::string modelName) {
+std::string createModelVar(const std::vector<Triangle> &faces,
+                           std::string modelName) {
   std::ostringstream result{};
 
-  result << "#pragma once\n\n#include \"cpuObjects.h\"\n\nnamespace Models "
-            "{\nconst inline Model "
-         << modelName << " {\n\t.objects =\n\t\t{";
+  result << "const inline Model " << modelName << " {\n\t.objects =\n\t\t{";
 
   for (const auto &t : faces)
     result << "\n\t\t\tObject{\n\t\t\t\t.type = Object::Type::Triangle,\n"
@@ -98,11 +97,12 @@ std::string createModelFile(const std::vector<Triangle> &faces,
            << formatFloat(t.b.y) << ", " << formatFloat(t.b.z) << "},\n"
            << "\t\t\t\t\t.c = {" << formatFloat(t.c.x) << ", "
            << formatFloat(t.c.y) << ", " << formatFloat(t.c.z) << "},\n"
-           << "\t\t\t\t\t.oneSided = true}},";
+           << "\t\t\t\t\t.oneSided = " << (t.oneSided ? "true" : "false")
+           << "}},";
 
   result << "\n\t\t},\n\t.material = {\n\t\t.color = {0.f, 0.f, "
             "0.f},\n\t\t.emissionStrength = 0.f,\n\t\t.emissionColor = {0.f, "
-            "0.f, 0.f},\n\t\t.type = Material::Type::Matte},\n};\n}";
+            "0.f, 0.f},\n\t\t.type = Material::Type::Matte},\n};";
 
   return result.str();
 }

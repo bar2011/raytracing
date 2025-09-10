@@ -36,7 +36,7 @@ float3 getEnvironmentColor(const thread Ray &ray) {
 }
 
 float3 trace(const thread Ray &initialRay, const thread Scene &scene,
-            thread rngPCG32 &rng) {
+             thread rngPCG32 &rng) {
   Ray ray = initialRay;
   float3 pixelColor = 1.0;
   float3 throughputColor = 0.0;

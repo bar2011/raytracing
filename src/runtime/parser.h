@@ -11,7 +11,7 @@ std::string formatFloat(float f);
 // models specified in the file, which can be pasted into the models library
 std::vector<std::string> parseOBJ(const std::string &fileName);
 
-// Formats faces vector to a usable model file which can be pasted into the
-// models library
-std::string createModelFile(const std::vector<Triangle> &faces,
-                            std::string modelName);
+// Formats faces vector to a usable model variable which can be pasted into a
+// file in the models library
+std::string createModelVar(const std::vector<Triangle> &faces,
+                           std::string modelName);

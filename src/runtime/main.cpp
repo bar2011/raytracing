@@ -23,8 +23,12 @@ int main(int argc, char **argv) {
           << "  no arguments       - run the program normally\n\n";
       return 0;
     } else if (std::strcmp(argv[1], "parse") == 0 && argc >= 3) {
+      std::cout << "#pragma once\n\n#include \"cpuObjects.h\"\n\nnamespace "
+                   "Models {\n";
       for (std::string model : parseOBJ(argv[2]))
         std::cout << model << "\n\n";
+      std::cout << "}\n";
+
       return 0;
     } else {
       std::cerr << "Unknown option. Use 'help' to see available commands.\n";
