@@ -12,6 +12,7 @@ struct Material {
   float emissionStrength;
   simd::float3 emissionColor;
   Type type;
+  float fuzz;
 };
 
 struct Sphere {

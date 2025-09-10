@@ -15,16 +15,18 @@ struct Material {
   float emissionStrength;
   float3 emissionColor;
   Type type;
+  float fuzz;
   
   // Function which applies scatter/specular on the given ray, and puts the result in the same ray reference
-  void interact(const thread Intersection &intersection, thread Ray &ray, thread rngPCG32 &rng);
+  // Returns whether the interaction was successful (i.e. whether the ray was absorbed or reflected)
+  static bool interact(const thread Intersection &intersection, thread Ray &ray, thread rngPCG32 &rng);
 
   // Using intersection, updates given ray to be a matching randomly generated
   // (via rng) scatter ray
-  static void scatter(const thread Intersection &intersection, thread Ray &ray,
+  static bool scatter(const thread Intersection &intersection, thread Ray &ray,
                       thread rngPCG32 &rng);
 
   // Using intersection, updates given ray to be a reflected ray of itself
-  static void specular(const thread Intersection &intersection,
-                       thread Ray &ray);
+  static bool specular(const thread Intersection &intersection, thread Ray &ray,
+                       thread rngPCG32 &rng);
 };
